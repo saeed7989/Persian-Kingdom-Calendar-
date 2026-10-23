@@ -28,22 +28,20 @@ jobs:
           find . -name "colors.xml" -exec sed -i 's/#0097A7/#060B14/gI' {} + || true
           find . -name "colors.xml" -exec sed -i 's/#00695C/#0F223D/gI' {} + || true
           python3 -c '
-          import glob, base64
+          import glob
           replacements = [
-              ("2K/ZgtmI24zZhSDZgdin2LHYs9uM", "2LPYp9mH2LTZhdin2LEg2LTYp9mH2YbYtNin2YfZig=="),
-              ("2K/ZgtmI24zZhQ==", "2LPYp9mH2LTZhdin2LE="),
-              ("2YfYrNix24wg2LTZhdiz24w=", "2LTYp9mH2YbYtNin2YfZig=="),
-              ("2LTZhdiz24w=", "2LTYp9mH2YbYtNin2YfZig=="),
-              ("2LHZiNuM2K/Yp9iv2YfYp9", "2LHYrtiv2KfYr9mH2Kc="),
-              ("2YXZhtin2LPYqNiq4oCM2YfYp9", "24zYp9iv2YXYp9mG4oCM2YfYp9"),
-              ("2KrZhti424zZhdin2Ko=", "2b7Zitiv2LHYqNmG2K/Zig==")
+              ("\u062a\u0642\u0648\u06cc\u0645 \u0641\u0627\u0631\u0633\u06cc", "\u06af\u0627\u06ef\u0634\u0645\u0627\u0631 \u0634\u0627\u0647\u0646\u0634\u0627\u0647\u06cc"),
+              ("\u062a\u0642\u0648\u06cc\u0645", "\u06af\u0627\u06ef\u0634\u0645\u0627\u0631"),
+              ("\u0647\u062c\u0631\u06cc \u0634\u0645\u0633\u06cc", "\u0634\u0627\u0647\u0646\u0634\u0627\u0647\u06cc"),
+              ("\u0634\u0645\u0633\u06cc", "\u0634\u0627\u0647\u0646\u0634\u0627\u0647\u06cc"),
+              ("\u0631\u0648\u06cc\u062f\u0627\u062f\u0647\u0627", "\u0631\u062e\u062f\u0627\u062f\u0647\u0627"),
+              ("\u0645\u0646\u0627\u0633\u0628\u062a\u200c\u0647\u0627", "\u06cc\u0627\u062f\u0645\u0627\u0646\u200c\u0647\u0627"),
+              ("\u062a\u0646\u0638\u06cc\u0645\u0627\u062a", "\u067e\u06cc\u06a9\u0631\u0628\u0646\u062f\u06cc")
           ]
           for path in glob.glob("**/strings.xml", recursive=True):
               with open(path, "r", encoding="utf-8") as f:
                   content = f.read()
-              for old_b64, new_b64 in replacements:
-                  old_str = base64.b64decode(old_b64).decode("utf-8")
-                  new_str = base64.b64decode(new_b64).decode("utf-8")
+              for old_str, new_str in replacements:
                   content = content.replace(old_str, new_str)
               with open(path, "w", encoding="utf-8") as f:
                   f.write(content)
