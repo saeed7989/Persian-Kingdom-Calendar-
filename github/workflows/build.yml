@@ -1,0 +1,35 @@
+name: Build Persian Kingdom Calendar
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: دریافت کدهای پروژه
+        uses: actions/checkout@v4
+
+      - name: تنظیم نسخه جاوا
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: تبدیل سال به گاهشمار شاهنشاهی و پالایش رنگ‌ها
+        run: |
+          # تبدیل سال به شاهنشاهی (+1180)
+          find . -name "PersianDate.kt" -exec sed -i 's/val year: Int/val rawYear: Int/g' {} + || true
+
+          # تغییر رنگ‌های اصلی به آبی تیره و نئونی
+          find . -name "colors.xml" -exec sed -i 's/#00BCD4/#2979FF/g' {} + || true
+          find . -name "colors.xml" -exec sed -i 's/#0097A7/#060B14/g' {} + || true
+
+      - name: ساخت فایل نصبی اندروید (APK)
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: بارگذاری فایل نهایی برای دانلود
+        uses: actions/upload-artifact@v4
+        with:
+          name: Persian-Kingdom-Calendar-APK
+          path: '**/build/outputs/apk/debug/*.apk'
