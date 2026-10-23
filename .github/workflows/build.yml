@@ -1,0 +1,32 @@
+name: Build Persian Kingdom Calendar
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Apply Persian Kingdom modifications and theme
+        run: |
+          find . -name "PersianDate.kt" -exec sed -i 's/val year: Int/val rawYear: Int/g' {} + || true
+          find . -name "colors.xml" -exec sed -i 's/#00BCD4/#2979FF/g' {} + || true
+          find . -name "colors.xml" -exec sed -i 's/#0097A7/#060B14/g' {} + || true
+
+      - name: Build APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Persian-Kingdom-Calendar-APK
+          path: '**/build/outputs/apk/debug/*.apk'
