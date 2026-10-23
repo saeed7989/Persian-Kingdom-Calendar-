@@ -7,26 +7,53 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repository with submodules
         uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 1
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
           java-version: '21'
+          distribution: 'temurin'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
+      - name: Apply Kingdom Theme and Pure Persian Strings
+        run: |
+          find . -name "colors.xml" -exec sed -i 's/#00BCD4/#2979FF/gI' {} + || true
+          find . -name "colors.xml" -exec sed -i 's/#0097A7/#060B14/gI' {} + || true
+          find . -name "colors.xml" -exec sed -i 's/#00695C/#0F223D/gI' {} + || true
+          python3 -c '
+          import glob, base64
+          replacements = [
+              ("2K/ZgtmI24zZhSDZgdin2LHYs9uM", "2LPYp9mH2LTZhdin2LEg2LTYp9mH2YbYtNin2YfZig=="),
+              ("2K/ZgtmI24zZhQ==", "2LPYp9mH2LTZhdin2LE="),
+              ("2YfYrNix24wg2LTZhdiz24w=", "2LTYp9mH2YbYtNin2YfZig=="),
+              ("2LTZhdiz24w=", "2LTYp9mH2YbYtNin2YfZig=="),
+              ("2LHZiNuM2K/Yp9iv2YfYp9", "2LHYrtiv2KfYr9mH2Kc="),
+              ("2YXZhtin2LPYqNiq4oCM2YfYp9", "24zYp9iv2YXYp9mG4oCM2YfYp9"),
+              ("2KrZhti424zZhdin2Ko=", "2b7Zitiv2LHYqNmG2K/Zig==")
+          ]
+          for path in glob.glob("**/strings.xml", recursive=True):
+              with open(path, "r", encoding="utf-8") as f:
+                  content = f.read()
+              for old_b64, new_b64 in replacements:
+                  old_str = base64.b64decode(old_b64).decode("utf-8")
+                  new_str = base64.b64decode(new_b64).decode("utf-8")
+                  content = content.replace(old_str, new_str)
+              with open(path, "w", encoding="utf-8") as f:
+                  f.write(content)
+          '
 
-      - name: Build APK
-        run: ./gradlew :PersianCalendar:assembleDebug --no-daemon --stacktrace
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Persian-Kingdom-Calendar-APK
-          path: '**/build/outputs/apk/debug/*.apk'
+          path: PersianCalendar/build/outputs/apk/**/*.apk
